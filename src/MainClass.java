@@ -3,8 +3,6 @@
  * Current Phase - Adding Functionalities, White-Box Testing
  */
 
-package pack1;
-
 import java.io.File;
 import java.io.IOException;
 
