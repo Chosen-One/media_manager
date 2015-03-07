@@ -6,42 +6,45 @@ import java.io.File;
 import java.io.IOException;
 
 public class MainClass {
+
+	public static File intialFolder = new File("E:\\Downloads"); 
+	public static File[] intialFolderList = intialFolder.listFiles();
+	
+	public static File targetFolder = new File("E:\\Videos\\TV-Shows"); 
+	public static File[] targetFolderList = targetFolder.listFiles();
+	public static String targetPath = "E:\\Videos\\TV-Shows\\";
+	public static String ext = ".mkv";
+	
+	public static String[] shows = {"The.Vampire.Diaries",
+									"The.Walking.Dead", 
+									"The.Flash", 
+									"Arrow", 
+									"Supernatural",
+									"Marco.Polo"};
 	
 	public static void main(String [] args) throws IOException{
 
-		File folder = new File("E:\\Downloads"); String ext = ".mkv";
-		File[] list = folder.listFiles();
-		
-		File folder2 = new File("E:\\Videos\\TV-Shows"); String target = "E:\\Videos\\TV-Shows\\";
-		File[] list2 = folder2.listFiles();
-		
-		String[] shows = {"The.Vampire.Diaries", "The.Walking.Dead", "The.Flash", "Arrow", "Supernatural","Marco.Polo"};
-		int count = 0;
-		for(File file:list){
-			
-			String name = file.getName();
+		int amountOfShowsCorrected = 0;
+		for(File intialFile:intialFolderList){
+			String fileName = intialFile.getName();
 			for(String show:shows){
 				
-				if(name.contains(show)){
+				if(fileName.contains(show)){
+					String seasonInfo = extractSeasonInfo(fileName);
+					String withoutFullStop = removeFullStop(show);
+					String finalString = withoutFullStop+ " " +seasonInfo+ext;
 					
-					int sI = 1; 
-					while(name.charAt(sI) != 'S'){
-						++sI;		
-					}
-					String season = name.substring(sI, sI+6);
-					String src = removeFullStop(show) + " " + season + ext;
-					
-					for(File file2:list2){
+					for(File targetFile:targetFolderList){
 						
-						if(removeFullStop(show).contains(file2.getName())){
-							
-								file.renameTo(new File(target + file2.getName() + "\\" + src)); ++count;
+						if(withoutFullStop.contains(targetFile.getName())){
+							targetFile.renameTo(new File(targetPath + targetFile.getName() + "\\" + finalString)); 
+							++amountOfShowsCorrected;
 						}
 					}
 				}
 			}	
 		}
-		System.out.println("Corrected " + count + " files.");		
+		System.out.println("Corrected " + amountOfShowsCorrected + " files.");		
 	}
 	
 	public static String removeFullStop(String in){
@@ -54,5 +57,16 @@ public class MainClass {
 		}
 		return String.valueOf(array);
 	}
+	
+	public static String extractSeasonInfo(String fileName){
+		
+		int startIndex = 1; 
+		while(fileName.charAt(startIndex) != 'S'){
+			++startIndex;		
+		}
+		return fileName.substring(startIndex, startIndex+6);
+	}
+	
+	
 
 }
