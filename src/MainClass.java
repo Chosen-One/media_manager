@@ -7,44 +7,70 @@ import java.io.IOException;
 
 public class MainClass {
 
-	public static File intialFolder = new File("E:\\Downloads"); 
-	public static File[] intialFolderList = intialFolder.listFiles();
+	public static File initialFolder = new File("E:\\Downloads"); 
+	public static File[] initialFolderList = initialFolder.listFiles();
+	public static String initialFolderPath = "E:\\Downloads\\";
 	
 	public static File targetFolder = new File("E:\\Videos\\TV-Shows"); 
 	public static File[] targetFolderList = targetFolder.listFiles();
 	public static String targetPath = "E:\\Videos\\TV-Shows\\";
-	public static String ext = ".mkv";
+	
+	public static final String ext = ".mkv";
 	
 	public static String[] shows = {"The.Vampire.Diaries",
+									"The.Originals",
 									"The.Walking.Dead", 
-									"The.Flash", 
-									"Arrow", 
-									"Supernatural",
-									"Marco.Polo"};
+									"Vikings", 
+									"Arrow",
+									"iZombie",
+									"Game.of.Thrones",
+									"Game.Of.Thrones",
+									"Marco.Polo",
+									"Lost"};
 	
 	public static void main(String [] args) throws IOException{
-
-		int amountOfShowsCorrected = 0;
-		for(File intialFile:intialFolderList){
-			String fileName = intialFile.getName();
-			for(String show:shows){
+	
+		for(File initialFile:initialFolderList){
+			
+			String fileName = initialFile.getName();
+			
+			if(!fileName.contains(".mkv")){
 				
-				if(fileName.contains(show)){
-					String seasonInfo = extractSeasonInfo(fileName);
-					String withoutFullStop = removeFullStop(show);
-					String finalString = withoutFullStop+ " " +seasonInfo+ext;
+				File videoFolder = new File(initialFolderPath + fileName);
+				File[] videoFolderList = videoFolder.listFiles();
+				
+				for(File videoFile:videoFolderList){
 					
-					for(File targetFile:targetFolderList){
-						
-						if(withoutFullStop.contains(targetFile.getName())){
-							targetFile.renameTo(new File(targetPath + targetFile.getName() + "\\" + finalString)); 
-							++amountOfShowsCorrected;
-						}
+					fileName = videoFile.getName();
+					renameAndDeploy(fileName, videoFile);
+				}
+				
+			}
+			else{				
+				renameAndDeploy(fileName, initialFile);
+			}
+		}
+	}
+	
+	public static void renameAndDeploy(String fileName, File videoFile){
+
+		for(String show:shows){
+			
+			if(fileName.contains(show)){
+				
+				String seasonInfo = extractSeasonInfo(fileName);
+				String withoutFullStop = removeFullStop(show);
+				String finalString = withoutFullStop+ " " +seasonInfo+ext;
+				System.out.println(finalString);
+				for(File targetFile:targetFolderList){
+					
+					if(withoutFullStop.equalsIgnoreCase(targetFile.getName())){
+					
+						videoFile.renameTo(new File(targetPath + targetFile.getName() + "\\" + finalString)); 
 					}
 				}
-			}	
+			}
 		}
-		System.out.println("Corrected " + amountOfShowsCorrected + " files.");		
 	}
 	
 	public static String removeFullStop(String in){
@@ -67,6 +93,4 @@ public class MainClass {
 		return fileName.substring(startIndex, startIndex+6);
 	}
 	
-	
-
 }
