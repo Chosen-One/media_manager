@@ -4,9 +4,14 @@
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files; 
+import java.nio.file.Paths;
+import java.util.ArrayList;
 
 public class MainClass {
 
+	public static final String showsTextFile = "C:\\Users\\bilas\\Documents\\Workspace\\media_manager\\src\\showsList.txt"; 
+	
 	public static File initialFolder = new File("E:\\Downloads"); 
 	public static File[] initialFolderList = initialFolder.listFiles();
 	public static String initialFolderPath = "E:\\Downloads\\";
@@ -16,38 +21,37 @@ public class MainClass {
 	public static String targetPath = "E:\\Videos\\TV-Shows\\";
 	
 	public static final String ext = ".mkv";
-	
-	public static String[] shows = {"The.Vampire.Diaries",
-									"The.Originals",
-									"The.Walking.Dead", 
-									"Vikings", 
-									"Arrow",
-									"iZombie",
-									"Game.of.Thrones",
-									"Game.Of.Thrones",
-									"Marco.Polo",
-									"Lost"};
+
+	public static ArrayList<String> shows = new ArrayList<String>();
 	
 	public static void main(String [] args) throws IOException{
-	
+
+		Files.lines(Paths.get(showsTextFile)).forEach(line -> shows.add(line));
+		
 		for(File initialFile:initialFolderList){
 			
 			String fileName = initialFile.getName();
 			
-			if(!fileName.contains(".mkv")){
-				
-				File videoFolder = new File(initialFolderPath + fileName);
-				File[] videoFolderList = videoFolder.listFiles();
-				
-				for(File videoFile:videoFolderList){
+			for(String show:shows){
+			
+				if(fileName.contains(show) && !fileName.contains(ext)){
 					
-					fileName = videoFile.getName();
-					renameAndDeploy(fileName, videoFile);
+					File videoFolder = new File(initialFolderPath + fileName);
+					File[] videoFolderList = videoFolder.listFiles();
+	
+					for(File videoFile:videoFolderList){
+						
+						fileName = videoFile.getName();
+						
+						if(fileName.contains(ext)){
+							renameAndDeploy(fileName, videoFile);
+							deleteFolder(videoFolder);
+						}
+					}					
 				}
-				
-			}
-			else{				
-				renameAndDeploy(fileName, initialFile);
+				else if(fileName.contains(show) && fileName.contains(ext)){				
+					renameAndDeploy(fileName, initialFile);
+				}
 			}
 		}
 	}
@@ -61,7 +65,7 @@ public class MainClass {
 				String seasonInfo = extractSeasonInfo(fileName);
 				String withoutFullStop = removeFullStop(show);
 				String finalString = withoutFullStop+ " " +seasonInfo+ext;
-				System.out.println(finalString);
+
 				for(File targetFile:targetFolderList){
 					
 					if(withoutFullStop.equalsIgnoreCase(targetFile.getName())){
@@ -87,10 +91,23 @@ public class MainClass {
 	public static String extractSeasonInfo(String fileName){
 		
 		int startIndex = 1; 
-		while(fileName.charAt(startIndex) != 'S'){
+		while(fileName.charAt(startIndex) != 'S' || fileName.charAt(startIndex+1) != '0'){
 			++startIndex;		
 		}
 		return fileName.substring(startIndex, startIndex+6);
 	}
 	
+	public static void deleteFolder(File folder) {
+	    File[] files = folder.listFiles();
+	    if(files!=null) {
+	        for(File f: files) {
+	            if(f.isDirectory()) {
+	                deleteFolder(f);
+	            } else {
+	                f.delete();
+	            }
+	        }
+	    }
+	    folder.delete();
+	}
 }
